@@ -20,8 +20,10 @@ PROMO_TO_LABEL = {
 
 def encode_board(fen, my_color):
     board = chess.Board(fen)
-    tensor = np.zeros((12, 8, 8), dtype=np.float32)
+    tensor = np.zeros((17, 8, 8), dtype=np.float32) #17 planes: 12 for pieces, 4 for castling rights, 1 for en passant square
     my_chess_color = chess.WHITE if my_color == "white" else chess.BLACK
+    opponent_color = not my_chess_color
+
 
     for square in chess.SQUARES:
         piece = board.piece_at(square)
@@ -46,6 +48,21 @@ def encode_board(fen, my_color):
         file = chess.square_file(indexed_square)
         tensor[plane_index][rank][file] = 1
 
+
+    tensor[12, :, :] = 1 if board.has_kingside_castling_rights(my_chess_color) else 0
+
+    tensor[13, :, :] = 1 if board.has_queenside_castling_rights(my_chess_color) else 0
+
+    tensor[14, :, :] = 1 if board.has_kingside_castling_rights(opponent_color) else 0
+
+    tensor[15, :, :] = 1 if board.has_queenside_castling_rights(opponent_color) else 0
+
+    if board.ep_square is not None:
+        ep_square = chess.square_mirror(board.ep_square) if my_color == "black" else board.ep_square
+        rank = chess.square_rank(ep_square)
+        file = chess.square_file(ep_square)
+        tensor[16][rank][file] = 1
+
     return tensor
 
 
@@ -53,21 +70,17 @@ def encode_board(fen, my_color):
 def encode_move(move_uci, my_color):
     move = chess.Move.from_uci(move_uci)
 
-    # TODO 1: get move.from_square and move.to_square
     from_square = move.from_square
     to_square = move.to_square
 
-    # TODO 2: if my_color == "black", mirror both squares with chess.square_mirror()
-    # otherwise leave them as-is
+    # flip the squares if my_color == "black" (mirror them)
     if my_color == "black":
         from_square = chess.square_mirror(from_square)
         to_square = chess.square_mirror(to_square)
     
 
-    # TODO 3: look up the promotion label using PROMO_TO_LABEL and move.promotion
     promotion_label = PROMO_TO_LABEL.get(move.promotion, 0)
 
-    # TODO 4: return a dict: {"from_square": ..., "to_square": ..., "promotion": ...}
     return {
         "from_square": from_square,
         "to_square": to_square,
