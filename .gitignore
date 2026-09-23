@@ -4,3 +4,5 @@ __pycache__/
 raw_games.json
 move_pairs.json
 dataset.npz
+best_model.pt
+
