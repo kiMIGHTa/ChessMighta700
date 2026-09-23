@@ -50,6 +50,32 @@ def predict_move(fen, my_color):
             best_score = move_score
             best_move = move
 
-    print(f"Predicted best move: {best_move} with score {best_score.item():.4f}")
+    return best_move 
 
-predict_move("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1", "black")
+def play_game(model_plays="black"):
+    board = chess.Board()
+
+    while not board.is_game_over():
+        print(board)
+        print()
+
+        if (board.turn == chess.WHITE and model_plays == "white") or \
+           (board.turn == chess.BLACK and model_plays == "black"):
+            move = predict_move(board.fen(), model_plays)
+            print(f"Model plays: {move}")
+            board.push(move)
+        else:
+            user_input = input("Your move (e.g. e2e4): ")
+            try:
+                move = chess.Move.from_uci(user_input)
+                if move in board.legal_moves:
+                    board.push(move)
+                else:
+                    print("Illegal move. Try again.")
+            except ValueError:
+                print("Invalid move format. Try again.")
+
+    print(board)
+    print(f"Game over: {board.result()}")
+
+play_game(model_plays="black")
