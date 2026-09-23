@@ -27,7 +27,9 @@ dataset = ChessDataset("dataset.npz")
 
 train_size = int(0.8 * len(dataset))
 val_size = len(dataset) - train_size
-train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+
+generator = torch.Generator().manual_seed(42) # for reproducibility of the random split
+train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=generator)
 
 # wrap the datasets in DataLoader for batching and shuffling
 train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
