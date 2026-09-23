@@ -5,11 +5,11 @@ class ChessNet(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.conv1 = nn.Conv2d(12, 64, kernel_size=3, padding=1)
+        self.conv1 = nn.Conv2d(17, 64, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
         self.relu = nn.ReLU()
 
-        self.dropout = nn.Dropout(p=0.5)  # dropout layer with a probability of 0.5 to prevent overfitting — randomly sets 50% of the input units to 0 during training, which helps the model generalize better to unseen data
+        self.dropout = nn.Dropout(p=0.3)  # dropout layer with a probability of 0.5 to prevent overfitting — randomly sets 50% of the input units to 0 during training, which helps the model generalize better to unseen data
 
         # output heads
         self.from_head = nn.Linear(128 * 8 * 8, 64)
