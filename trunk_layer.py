@@ -5,7 +5,7 @@ class ChessNet(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.conv1 = nn.Conv2d(17, 64, kernel_size=3, padding=1)
+        self.conv1 = nn.Conv2d(51, 64, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
         self.relu = nn.ReLU()
 
