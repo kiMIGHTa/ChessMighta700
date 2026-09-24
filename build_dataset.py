@@ -1,7 +1,7 @@
 import json
 import numpy as np
 
-from position import encode_move, encode_board
+from position import encode_move, encode_board_with_history
 
 
 with open("move_pairs.json") as f:
@@ -13,7 +13,7 @@ to_labels = []
 promo_labels = []
 
 for pair in move_pairs:
-    board_tensor = encode_board(pair["fen"], pair["my_color"])
+    board_tensor = encode_board_with_history(pair["fen"], pair["history"], pair["my_color"])
     move_labels = encode_move(pair["move"], pair["my_color"])
 
     boards.append(board_tensor)
