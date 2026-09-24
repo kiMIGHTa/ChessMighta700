@@ -86,3 +86,20 @@ def encode_move(move_uci, my_color):
         "to_square": to_square,
         "promotion": promotion_label
     }
+
+def encode_board_with_history(fen, history, my_color):
+    """Encodes the current position plus up to 2 historical positions,
+    concatenated into one (51, 8, 8) tensor. Missing history slots are zero-padded."""
+
+    current_tensor = encode_board(fen, my_color)
+
+    history_tensors = []
+    for hist_fen in history:
+        history_tensors.append(encode_board(hist_fen, my_color))
+
+    history_tensors += [np.zeros((17, 8, 8), dtype=np.float32)] * (2 - len(history_tensors))
+
+  
+    full_tensor = np.concatenate([current_tensor] + history_tensors, axis=0)
+
+    return full_tensor
