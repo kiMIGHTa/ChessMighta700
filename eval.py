@@ -13,12 +13,12 @@ correct_both = 0
 total = 0
 
 with torch.no_grad():
-    for board, from_label, to_label, promo_label in val_dataset:
+    for board, from_label, to_label, promo_label, value_label in val_dataset:
         input_tensor = board.unsqueeze(0)
-        from_logits, to_logits, promo_logits = model(input_tensor)
+        from_logits, to_logits, promo_logits, value_pred = model(input_tensor)
 
-        pred_from = np.argmax(from_logits).item()
-        pred_to = np.argmax(to_logits).item()
+        pred_from = from_logits.argmax(dim=1).item()
+        pred_to = to_logits.argmax(dim=1).item()
 
         if pred_from == from_label.item():
             correct_from += 1
