@@ -7,6 +7,7 @@ from training_model import train_loader, val_loader
 
 model = ChessNet()
 criterion = nn.CrossEntropyLoss()
+value_criterion = nn.MSELoss()  # regression loss for the value head
 optimizer = optim.Adam(model.parameters(), lr=1e-3) # Adam runs the optimization algorithm with a learning rate of 0.001(1e-3) and updates the model's parameters based on the computed gradients from the loss function
 
 
@@ -19,18 +20,19 @@ for epoch in range(num_epochs):
     model.train()  # puts the model in "training mode" (matters once we add dropout/batchnorm later)
     total_loss = 0
 
-    for boards, from_labels, to_labels, promo_labels in train_loader:
+    for boards, from_labels, to_labels, promo_labels, value_labels in train_loader:
         # zero out gradients from the previous step
         optimizer.zero_grad()
 
-        # forward pass — get the three logits from the model
-        from_logits, to_logits, promo_logits = model(boards) 
+        # forward pass — get the 4 logits from the model
+        from_logits, to_logits, promo_logits, value_pred = model(boards) 
 
         # compute the loss 
         loss_from = criterion(from_logits, from_labels)
         loss_to = criterion(to_logits, to_labels)   
         loss_promo = criterion(promo_logits, promo_labels)
-        loss = loss_from + loss_to + loss_promo
+        loss_value = value_criterion(value_pred, value_labels.unsqueeze(1))
+        loss = loss_from + loss_to + loss_promo + loss_value
 
         # backward pass and optimization step
         loss.backward()
@@ -47,15 +49,18 @@ for epoch in range(num_epochs):
     val_loss = 0
 
     with torch.no_grad():
-        for boards, from_labels, to_labels, promo_labels in val_loader:
+        for boards, from_labels, to_labels, promo_labels, value_labels in val_loader:
             # forward pass
-            from_logits, to_logits, promo_logits = model(boards)
+            from_logits, to_logits, promo_logits, value_pred = model(boards)
 
             # compute the loss (exactly the same as in training, but we don't do backward pass or optimizer step)
             loss_from = criterion(from_logits, from_labels)
             loss_to = criterion(to_logits, to_labels)
             loss_promo = criterion(promo_logits, promo_labels)
-            loss = loss_from + loss_to + loss_promo
+            loss_value = value_criterion(value_pred, value_labels.unsqueeze(1))
+
+
+            loss = loss_from + loss_to + loss_promo + loss_value
 
             val_loss += loss.item()
 
