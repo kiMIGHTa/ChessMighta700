@@ -9,6 +9,7 @@ class ChessDataset(Dataset):
         self.from_labels = data["from_labels"]
         self.to_labels = data["to_labels"]
         self.promo_labels = data["promo_labels"]
+        self.value_labels = data["value_labels"]
 
     def __len__(self):
         return len(self.boards)
@@ -18,8 +19,9 @@ class ChessDataset(Dataset):
         from_label = torch.tensor(self.from_labels[idx])
         to_label = torch.tensor(self.to_labels[idx])
         promo_label = torch.tensor(self.promo_labels[idx])
+        value_label = torch.tensor(self.value_labels[idx])
 
-        return board_tensor, from_label, to_label, promo_label
+        return board_tensor, from_label, to_label, promo_label, value_label
 
 
 dataset = ChessDataset("dataset.npz")
