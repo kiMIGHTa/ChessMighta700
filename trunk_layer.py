@@ -15,6 +15,7 @@ class ChessNet(nn.Module):
         self.from_head = nn.Linear(128 * 8 * 8, 64)
         self.to_head = nn.Linear(128 * 8 * 8, 64)
         self.promo_head = nn.Linear(128 * 8 * 8, 5)
+        self.value_head = nn.Linear(128 * 8 * 8, 1)  # added value head for centipawn score prediction
 
     def forward(self, x):
         x = self.conv1(x)
@@ -29,4 +30,7 @@ class ChessNet(nn.Module):
         to_logits = self.to_head(x)
         promo_logits = self.promo_head(x)
 
-        return (from_logits, to_logits, promo_logits)
+        # value head normalized to a range of -1 to 1
+        value = torch.tanh(self.value_head(x))
+
+        return (from_logits, to_logits, promo_logits, value)
